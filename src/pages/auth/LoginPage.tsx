@@ -4,10 +4,12 @@ import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { useTranslation } from 'react-i18next';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login, isLoading, error, clearError } = useAuthStore();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -30,18 +32,18 @@ export function LoginPage() {
           <div className="inline-flex items-center justify-center w-14 h-14 bg-primary-600 rounded-xl mb-4">
             <span className="text-white font-bold text-xl">D</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Dalika Cotizaciones</h1>
-          <p className="mt-2 text-gray-500">Inicia sesion para continuar</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t('login.title')}</h1>
+          <p className="mt-2 text-gray-500">{t('login.subtitle')}</p>
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
-              label="Email"
+              label={t('login.email')}
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@email.com"
+              placeholder={t('login.emailPlaceholder')}
               leftIcon={<Mail className="h-4 w-4" />}
               autoComplete="email"
               required
@@ -49,11 +51,11 @@ export function LoginPage() {
 
             <div>
               <Input
-                label="Contraseña"
+                label={t('login.password')}
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder={t('login.passwordPlaceholder')}
                 leftIcon={<Lock className="h-4 w-4" />}
                 rightIcon={
                   <button
@@ -61,6 +63,7 @@ export function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="hover:text-gray-600 transition-colors"
                     tabIndex={-1}
+                    aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -81,28 +84,28 @@ export function LoginPage() {
             )}
 
             <Button type="submit" variant="primary" size="lg" isLoading={isLoading} className="w-full">
-              Iniciar Sesion
+              {t('login.signIn')}
             </Button>
           </form>
 
           <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-xs text-gray-500 text-center mb-3">Cuentas de prueba:</p>
+            <p className="text-xs text-gray-500 text-center mb-3">{t('login.testAccounts')}</p>
             <div className="space-y-2 text-xs">
               <p className="text-gray-600">
-                <span className="font-medium">Admin:</span> admin@dalika.com / admin123
+                <span className="font-medium">{t('login.admin')}:</span> admin@dalika.com / admin123
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Rep:</span> rep@dalika.com / rep123
+                <span className="font-medium">{t('login.rep')}:</span> rep@dalika.com / rep123
               </p>
               <p className="text-gray-600">
-                <span className="font-medium">Cliente:</span> client@example.com / client123
+                <span className="font-medium">{t('login.client')}:</span> client@example.com / client123
               </p>
             </div>
           </div>
         </div>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          &copy; {new Date().getFullYear()} Dalika. Todos los derechos reservados.
+          &copy; {new Date().getFullYear()} Dalika. {t('login.copyright')}
         </p>
       </div>
     </div>

@@ -149,6 +149,7 @@ The `DataInitializer` now runs on both `dev` and `prod` profiles, so seed data i
 - **Routing**: React Router v7
 - **HTTP client**: Axios
 - **Icons**: lucide-react
+- **Internationalization**: react-i18next + i18next
 - **Build output**: `dist/` directory
 
 ### Commands
@@ -158,6 +159,29 @@ npm run build    # Production build
 npm run preview  # Preview production build
 npm run lint     # ESLint
 ```
+
+### Internationalization (i18n)
+- **Library**: react-i18next + i18next
+- **Config file**: `src/i18n/config.ts`
+- **Translation files**: `src/i18n/locales/en.json` (English, default), `src/i18n/locales/es.json` (Español)
+- **Language persistence**: `localStorage` key `dalika-language`
+- **Dynamic switching**: `i18n.changeLanguage()` — no page refresh required
+- **Usage**: `import { useTranslation } from 'react-i18next'` and use `t('key')` in components
+
+### Router
+| Path | Component | Access | Notes |
+|------|-----------|--------|-------|
+| `/login` | `LoginPage` | Public | |
+| `/dashboard` | `DashboardPage` | Authenticated | |
+| `/brands` | `BrandCatalogPage` | CLIENT | |
+| `/quotes` | `QuoteRequestsPage` | CLIENT | |
+| `/quotes/new` | `NewQuoteRequestPage` | CLIENT | |
+| `/quotes/:id` | `QuoteDetailPage` | Authenticated | |
+| `/admin/users` | `UsersManagementPage` | ADMIN | |
+| `/admin/brands` | `BrandsManagementPage` | ADMIN | |
+| `/admin/categories` | `CategoriesManagementPage` | ADMIN | |
+| `/admin/quotes` | `AdminQuotesPage` | ADMIN, REP | |
+| `/settings` | `SettingsPage` | Authenticated | Language selector, user settings |
 
 ### API Base URL
 Configured via `.env` file. Points to `http://localhost:8080` in development.

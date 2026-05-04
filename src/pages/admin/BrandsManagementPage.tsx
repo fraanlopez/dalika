@@ -14,9 +14,11 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { formatDate } from '@/utils';
+import { useTranslation } from 'react-i18next';
 import type { Brand } from '@/types';
 
 export function BrandsManagementPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
@@ -47,7 +49,7 @@ export function BrandsManagementPage() {
       setBrands(brandsData.data);
       setCategories(categoriesData.data);
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudieron cargar los datos' });
+      addToast({ type: 'error', title: t('brands.errorLoading'), message: t('brands.errorLoading') });
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +83,7 @@ export function BrandsManagementPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      addToast({ type: 'error', title: 'Error', message: 'Nombre es requerido' });
+      addToast({ type: 'error', title: t('brands.nameRequired'), message: t('brands.nameRequired') });
       return;
     }
 
@@ -96,7 +98,7 @@ export function BrandsManagementPage() {
           categories: formData.categoryIds.map(id => ({ id, name: categories.find(c => c.id === id)?.name || '' })),
           isActive: formData.isActive,
         });
-        addToast({ type: 'success', title: 'Marca actualizada', message: `${formData.name} ha sido actualizada.` });
+        addToast({ type: 'success', title: t('brands.brandUpdated'), message: `${formData.name} ${t('brands.brandUpdated')}` });
       } else {
         await brandsService.create({
           name: formData.name.trim(),
@@ -105,50 +107,50 @@ export function BrandsManagementPage() {
           externalLink: formData.externalLink.trim(),
           categoryIds: formData.categoryIds,
         });
-        addToast({ type: 'success', title: 'Marca creada', message: `${formData.name} ha sido creada.` });
+        addToast({ type: 'success', title: t('brands.brandCreated'), message: `${formData.name} ${t('brands.brandCreated')}` });
       }
       setShowModal(false);
       fetchData();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo guardar la marca' });
+      addToast({ type: 'error', title: t('brands.errorSave'), message: t('brands.errorSave') });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (brand: Brand) => {
-    if (!confirm(`¿Estas seguro de que deseas eliminar "${brand.name}"?`)) return;
+    if (!confirm(t('brands.confirmDelete', { name: brand.name }))) return;
     try {
       await brandsService.delete(brand.id);
-      addToast({ type: 'success', title: 'Marca eliminada', message: `${brand.name} ha sido eliminada.` });
+      addToast({ type: 'success', title: t('brands.brandDeleted'), message: `${brand.name} ${t('brands.brandDeleted')}` });
       fetchData();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo eliminar la marca' });
+      addToast({ type: 'error', title: t('brands.errorDelete'), message: t('brands.errorDelete') });
     }
   };
 
   const categoryOptions = categories.map((c) => ({ value: c.id, label: c.name }));
 
   const getCategoryName = (brand: Brand) => {
-    if (!brand.categories || brand.categories.length === 0) return 'Sin categoria';
+    if (!brand.categories || brand.categories.length === 0) return t('brands.noCategory');
     return brand.categories.map(c => c.name).join(', ');
   };
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Gestion de Marcas"
-        description="Administra las marcas disponibles en el catalogo."
+        title={t('brands.manageTitle')}
+        description={t('brands.manageDescription')}
         actions={
           <Button onClick={openCreateModal} leftIcon={<Plus className="h-4 w-4" />}>
-            Nueva Marca
+            {t('brands.newBrand')}
           </Button>
         }
       />
 
       <div className="mb-6">
         <Input
-          placeholder="Buscar marcas..."
+          placeholder={t('brands.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           leftIcon={<Search className="h-4 w-4" />}
@@ -161,11 +163,11 @@ export function BrandsManagementPage() {
         <Card>
           <CardBody>
             <EmptyState
-              title="No hay marcas"
-              description="No se encontraron marcas registradas."
+              title={t('brands.noBrands')}
+              description={t('brands.noBrandsRegistered')}
               action={
                 <Button onClick={openCreateModal} leftIcon={<Plus className="h-4 w-4" />}>
-                  Crear Marca
+                  {t('brands.createBrand')}
                 </Button>
               }
             />
@@ -177,11 +179,11 @@ export function BrandsManagementPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableCell as="th">Marca</TableCell>
-                  <TableCell as="th">Categoria</TableCell>
-                  <TableCell as="th">Estado</TableCell>
-                  <TableCell as="th">Creada</TableCell>
-                  <TableCell as="th" className="text-right">Acciones</TableCell>
+                  <TableCell as="th">{t('brands.name')}</TableCell>
+                  <TableCell as="th">{t('brands.category')}</TableCell>
+                  <TableCell as="th">{t('brands.status')}</TableCell>
+                  <TableCell as="th">{t('brands.created')}</TableCell>
+                  <TableCell as="th" className="text-right">{t('brands.actions')}</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -208,7 +210,7 @@ export function BrandsManagementPage() {
                     </TableCell>
                     <TableCell>
                       <Badge variant={brand.isActive ? 'success' : 'default'}>
-                        {brand.isActive ? 'Activa' : 'Inactiva'}
+                        {brand.isActive ? t('brands.active') : t('brands.inactive')}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm text-gray-500">{formatDate(brand.createdAt)}</TableCell>
@@ -238,52 +240,52 @@ export function BrandsManagementPage() {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingBrand ? 'Editar Marca' : 'Nueva Marca'}
-        description={editingBrand ? 'Modifica los datos de la marca.' : 'Completa los datos para crear una nueva marca.'}
+        title={editingBrand ? t('brands.editBrand') : t('brands.newBrand')}
+        description={editingBrand ? t('brands.editDescription') : t('brands.createDescription')}
         footer={
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setShowModal(false)}>
-              Cancelar
+              {t('brands.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSubmit} isLoading={isSubmitting}>
-              {editingBrand ? 'Guardar Cambios' : 'Crear Marca'}
+              {editingBrand ? t('brands.saveChanges') : t('brands.createBrand')}
             </Button>
           </div>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nombre de la marca"
+            label={t('brands.name')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Samsung"
+            placeholder={t('brands.namePlaceholder')}
             required
           />
           <Input
-            label="URL del logo (opcional)"
+            label={t('brands.logoUrl')}
             value={formData.logoUrl}
             onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-            placeholder="https://example.com/logo.png"
+            placeholder={t('brands.logoPlaceholder')}
           />
           <Textarea
-            label="Descripcion"
+            label={t('brands.description')}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Descripcion de la marca..."
+            placeholder={t('brands.descPlaceholder')}
             rows={3}
           />
           <Input
-            label="Link externo"
+            label={t('brands.externalLink')}
             value={formData.externalLink}
             onChange={(e) => setFormData({ ...formData, externalLink: e.target.value })}
-            placeholder="https://www.samsung.com"
+            placeholder={t('brands.linkPlaceholder')}
           />
           <Select
-            label="Categoria"
+            label={t('brands.category')}
             options={categoryOptions}
             value={formData.categoryIds[0] || ''}
             onChange={(e) => setFormData({ ...formData, categoryIds: [e.target.value] })}
-            placeholder="Selecciona una categoria"
+            placeholder={t('brands.selectCategory')}
           />
           <div className="flex items-center gap-2">
             <input
@@ -293,7 +295,7 @@ export function BrandsManagementPage() {
               onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
               className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
             />
-            <label htmlFor="isActive" className="text-sm text-gray-700">Marca activa</label>
+            <label htmlFor="isActive" className="text-sm text-gray-700">{t('brands.active')}</label>
           </div>
         </form>
       </Modal>

@@ -13,15 +13,17 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { formatDate } from '@/utils';
+import { useTranslation } from 'react-i18next';
 import type { User, UserRole } from '@/types';
 
 const roleConfig: Record<string, { variant: 'info' | 'success' | 'warning' | 'danger'; label: string }> = {
-  ADMIN: { variant: 'danger', label: 'Admin' },
-  REP: { variant: 'info', label: 'Representante' },
-  CLIENT: { variant: 'success', label: 'Cliente' },
+  ADMIN: { variant: 'danger', label: 'role.ADMIN' },
+  REP: { variant: 'info', label: 'role.REP' },
+  CLIENT: { variant: 'success', label: 'role.CLIENT' },
 };
 
 export function UsersManagementPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +42,7 @@ export function UsersManagementPage() {
       const data = await usersService.getAll();
       setUsers(data.data);
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudieron cargar los usuarios' });
+      addToast({ type: 'error', title: t('users.errorLoading'), message: t('users.errorLoading') });
     } finally {
       setIsLoading(false);
     }
@@ -67,11 +69,11 @@ export function UsersManagementPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim() || !formData.email.trim()) {
-      addToast({ type: 'error', title: 'Error', message: 'Nombre y email son requeridos' });
+      addToast({ type: 'error', title: t('users.nameEmailRequired'), message: t('users.nameEmailRequired') });
       return;
     }
     if (!editingUser && !formData.password) {
-      addToast({ type: 'error', title: 'Error', message: 'La contraseña es requerida para nuevos usuarios' });
+      addToast({ type: 'error', title: t('users.passwordRequired'), message: t('users.passwordRequired') });
       return;
     }
 
@@ -82,7 +84,7 @@ export function UsersManagementPage() {
           name: formData.name.trim(),
           role: formData.role,
         });
-        addToast({ type: 'success', title: 'Usuario actualizado', message: `${formData.name} ha sido actualizado.` });
+        addToast({ type: 'success', title: t('users.userUpdated'), message: `${formData.name} ${t('users.userUpdated')}` });
       } else {
         await usersService.create({
           name: formData.name.trim(),
@@ -90,49 +92,49 @@ export function UsersManagementPage() {
           role: formData.role,
           password: formData.password,
         });
-        addToast({ type: 'success', title: 'Usuario creado', message: `${formData.name} ha sido creado.` });
+        addToast({ type: 'success', title: t('users.userCreated'), message: `${formData.name} ${t('users.userCreated')}` });
       }
       setShowModal(false);
       fetchUsers();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo guardar el usuario' });
+      addToast({ type: 'error', title: t('users.errorSave'), message: t('users.errorSave') });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (user: User) => {
-    if (!confirm(`¿Estas seguro de que deseas eliminar a ${user.name}?`)) return;
+    if (!confirm(t('users.confirmDelete', { name: user.name }))) return;
     try {
       await usersService.delete(user.id);
-      addToast({ type: 'success', title: 'Usuario eliminado', message: `${user.name} ha sido eliminado.` });
+      addToast({ type: 'success', title: t('users.userDeleted'), message: `${user.name} ${t('users.userDeleted')}` });
       fetchUsers();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo eliminar el usuario' });
+      addToast({ type: 'error', title: t('users.errorDelete'), message: t('users.errorDelete') });
     }
   };
 
   const roleOptions = [
-    { value: 'ADMIN', label: 'Administrador' },
-    { value: 'REP', label: 'Representante' },
-    { value: 'CLIENT', label: 'Cliente' },
+    { value: 'ADMIN', label: t('users.role_admin') },
+    { value: 'REP', label: t('users.role_rep') },
+    { value: 'CLIENT', label: t('users.role_client') },
   ];
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Gestion de Usuarios"
-        description="Administra los usuarios del sistema."
+        title={t('users.manageTitle')}
+        description={t('users.manageDescription')}
         actions={
           <Button onClick={openCreateModal} leftIcon={<UserPlus className="h-4 w-4" />}>
-            Nuevo Usuario
+            {t('users.newUser')}
           </Button>
         }
       />
 
       <div className="mb-6">
         <Input
-          placeholder="Buscar usuarios..."
+          placeholder={t('users.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           leftIcon={<Search className="h-4 w-4" />}
@@ -145,12 +147,12 @@ export function UsersManagementPage() {
         <Card>
           <CardBody>
             <EmptyState
-              title="No hay usuarios"
-              description="No se encontraron usuarios registrados."
+              title={t('users.noUsers')}
+              description={t('users.noUsersDescription')}
               icon={<Plus className="h-16 w-16" />}
               action={
                 <Button onClick={openCreateModal} leftIcon={<UserPlus className="h-4 w-4" />}>
-                  Crear Usuario
+                  {t('users.createUser')}
                 </Button>
               }
             />
@@ -162,12 +164,12 @@ export function UsersManagementPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableCell as="th">Nombre</TableCell>
-                  <TableCell as="th">Email</TableCell>
-                  <TableCell as="th">Rol</TableCell>
-                  <TableCell as="th">Estado</TableCell>
-                  <TableCell as="th">Creado</TableCell>
-                  <TableCell as="th" className="text-right">Acciones</TableCell>
+                  <TableCell as="th">{t('users.fullName')}</TableCell>
+                  <TableCell as="th">{t('users.email')}</TableCell>
+                  <TableCell as="th">{t('users.role')}</TableCell>
+                  <TableCell as="th">{t('users.status')}</TableCell>
+                  <TableCell as="th">{t('users.created')}</TableCell>
+                  <TableCell as="th" className="text-right">{t('users.actions')}</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -185,11 +187,11 @@ export function UsersManagementPage() {
                       </TableCell>
                       <TableCell className="text-sm text-gray-600">{user.email}</TableCell>
                       <TableCell>
-                        <Badge variant={role.variant}>{role.label}</Badge>
+                        <Badge variant={role.variant}>{t(role.label)}</Badge>
                       </TableCell>
                       <TableCell>
                         <Badge variant={user.isActive ? 'success' : 'default'}>
-                          {user.isActive ? 'Activo' : 'Inactivo'}
+                          {user.isActive ? t('users.active') : t('users.inactive')}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-gray-500">{formatDate(user.createdAt)}</TableCell>
@@ -215,48 +217,48 @@ export function UsersManagementPage() {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
-        description={editingUser ? 'Modifica los datos del usuario.' : 'Completa los datos para crear un nuevo usuario.'}
+        title={editingUser ? t('users.editUser') : t('users.newUser')}
+        description={editingUser ? t('users.editDescription') : t('users.createDescription')}
         footer={
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setShowModal(false)}>
-              Cancelar
+              {t('users.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSubmit} isLoading={isSubmitting}>
-              {editingUser ? 'Guardar Cambios' : 'Crear Usuario'}
+              {editingUser ? t('users.saveChanges') : t('users.createUser')}
             </Button>
           </div>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nombre completo"
+            label={t('users.fullName')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Juan Perez"
+            placeholder={t('users.namePlaceholder')}
             required
           />
           <Input
-            label="Email"
+            label={t('users.email')}
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="juan@email.com"
+            placeholder={t('users.emailPlaceholder')}
             disabled={!!editingUser}
             required
           />
           {!editingUser && (
             <Input
-              label="Contraseña"
+              label={t('users.password')}
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="••••••••"
+              placeholder={t('users.passwordPlaceholder')}
               required
             />
           )}
           <Select
-            label="Rol"
+            label={t('users.role')}
             options={roleOptions}
             value={formData.role}
             onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}

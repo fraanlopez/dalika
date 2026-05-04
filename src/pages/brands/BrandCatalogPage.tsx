@@ -9,9 +9,11 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useDebounce } from '@/hooks';
+import { useTranslation } from 'react-i18next';
 import type { Brand, Category } from '@/types';
 
 export function BrandCatalogPage() {
+  const { t } = useTranslation();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,26 +73,26 @@ export function BrandCatalogPage() {
   }, [debouncedSearch, selectedCategory]);
 
   const categoryOptions = [
-    { value: '', label: 'Todas las categorias' },
+    { value: '', label: t('brands.allCategories') },
     ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
   ];
 
   const getCategoryName = (brand: Brand) => {
-    if (!brand.categories || brand.categories.length === 0) return 'Sin categoria';
+    if (!brand.categories || brand.categories.length === 0) return t('brands.noCategory');
     return brand.categories.map(c => c.name).join(', ');
   };
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Catalogo de Marcas"
-        description="Explora las marcas disponibles y selecciona productos para tu cotizacion."
+        title={t('brands.catalog')}
+        description={t('brands.catalogDescription')}
       />
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex-1">
           <Input
-            placeholder="Buscar marcas..."
+            placeholder={t('brands.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             leftIcon={<Search className="h-4 w-4" />}
@@ -120,8 +122,8 @@ export function BrandCatalogPage() {
         </div>
       ) : brands.length === 0 ? (
         <EmptyState
-          title="No se encontraron marcas"
-          description="Intenta con otros terminos de busqueda o cambia la categoria."
+          title={t('brands.noBrands')}
+          description={t('brands.noBrandsDescription')}
           icon={<Store className="h-16 w-16" />}
         />
       ) : (
@@ -138,7 +140,7 @@ export function BrandCatalogPage() {
                       (e.target as HTMLImageElement).src = `https://placehold.co/120x60/e2e8f0/64748b?text=${brand.name.charAt(0)}`;
                     }}
                   />
-                  {!brand.isActive && <Badge variant="default">Inactiva</Badge>}
+                  {!brand.isActive && <Badge variant="default">{t('brands.inactive')}</Badge>}
                 </div>
                 <h3 className="text-lg font-semibold text-gray-900">{brand.name}</h3>
                 <p className="text-sm text-gray-500 mt-1 line-clamp-2">{brand.description}</p>
@@ -150,7 +152,7 @@ export function BrandCatalogPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-700 font-medium"
                   >
-                    Visitar sitio
+                    {t('brands.visitSite')}
                     <ExternalLink className="h-3.5 w-3.5" />
                   </a>
                 </div>

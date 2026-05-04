@@ -8,12 +8,12 @@ import {
   Tags,
   Settings,
   LogOut,
-  ChevronDown,
   Package,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useUIStore } from '@/store/uiStore';
 import { cn } from '@/utils';
+import { useTranslation } from 'react-i18next';
 import type { UserRole } from '@/types';
 
 interface NavItem {
@@ -30,31 +30,31 @@ interface NavSection {
 
 const navSections: NavSection[] = [
   {
-    title: 'General',
+    title: 'sidebar.general',
     items: [
-      { label: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, roles: ['ADMIN', 'REP', 'CLIENT'] },
+      { label: 'nav.dashboard', path: '/dashboard', icon: <LayoutDashboard className="h-5 w-5" />, roles: ['ADMIN', 'REP', 'CLIENT'] },
     ],
   },
   {
-    title: 'Cotizaciones',
+    title: 'sidebar.quotes',
     items: [
-      { label: 'Mis Cotizaciones', path: '/quotes', icon: <FileText className="h-5 w-5" />, roles: ['CLIENT'] },
-      { label: 'Nueva Solicitud', path: '/quotes/new', icon: <PlusCircle className="h-5 w-5" />, roles: ['CLIENT'] },
-      { label: 'Todas las Cotizaciones', path: '/admin/quotes', icon: <FileText className="h-5 w-5" />, roles: ['ADMIN', 'REP'] },
+      { label: 'nav.myQuotes', path: '/quotes', icon: <FileText className="h-5 w-5" />, roles: ['CLIENT'] },
+      { label: 'nav.newRequest', path: '/quotes/new', icon: <PlusCircle className="h-5 w-5" />, roles: ['CLIENT'] },
+      { label: 'nav.allQuotes', path: '/admin/quotes', icon: <FileText className="h-5 w-5" />, roles: ['ADMIN', 'REP'] },
     ],
   },
   {
-    title: 'Catalogo',
+    title: 'sidebar.catalog',
     items: [
-      { label: 'Marcas', path: '/brands', icon: <Store className="h-5 w-5" />, roles: ['CLIENT'] },
-      { label: 'Gestion de Marcas', path: '/admin/brands', icon: <Package className="h-5 w-5" />, roles: ['ADMIN'] },
-      { label: 'Categorias', path: '/admin/categories', icon: <Tags className="h-5 w-5" />, roles: ['ADMIN'] },
+      { label: 'nav.brands', path: '/brands', icon: <Store className="h-5 w-5" />, roles: ['CLIENT'] },
+      { label: 'nav.brandManagement', path: '/admin/brands', icon: <Package className="h-5 w-5" />, roles: ['ADMIN'] },
+      { label: 'nav.categories', path: '/admin/categories', icon: <Tags className="h-5 w-5" />, roles: ['ADMIN'] },
     ],
   },
   {
-    title: 'Administracion',
+    title: 'sidebar.administration',
     items: [
-      { label: 'Usuarios', path: '/admin/users', icon: <Users className="h-5 w-5" />, roles: ['ADMIN'] },
+      { label: 'nav.users', path: '/admin/users', icon: <Users className="h-5 w-5" />, roles: ['ADMIN'] },
     ],
   },
 ];
@@ -62,6 +62,7 @@ const navSections: NavSection[] = [
 export function Sidebar() {
   const { user, logout } = useAuthStore();
   const { sidebarOpen, closeSidebar } = useUIStore();
+  const { t } = useTranslation();
 
   if (!user) return null;
 
@@ -99,7 +100,7 @@ export function Sidebar() {
             {filteredSections.map((section) => (
               <div key={section.title} className="mb-6">
                 <p className="px-3 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  {section.title}
+                  {t(section.title)}
                 </p>
                 <div className="space-y-1">
                   {section.items.map((item) => (
@@ -118,7 +119,7 @@ export function Sidebar() {
                       }
                     >
                       {item.icon}
-                      {item.label}
+                      {t(item.label)}
                     </NavLink>
                   ))}
                 </div>
@@ -127,22 +128,26 @@ export function Sidebar() {
           </nav>
 
           <div className="border-t border-white/10 px-3 py-4">
-            <div className="flex items-center gap-3 px-3 py-2 mb-2">
+            <NavLink
+              to="/settings"
+              onClick={closeSidebar}
+              className="flex items-center gap-3 px-3 py-2 mb-2 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-colors"
+            >
               <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center text-sm font-medium">
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="font-medium truncate">{user.name}</p>
                 <p className="text-xs text-gray-400 truncate">{user.email}</p>
               </div>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            </div>
+              <Settings className="h-4 w-4 text-gray-400" />
+            </NavLink>
             <button
               onClick={logout}
               className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-gray-300 hover:bg-sidebar-hover hover:text-white transition-colors"
             >
               <LogOut className="h-5 w-5" />
-              Cerrar sesion
+              {t('sidebar.closeSession')}
             </button>
           </div>
         </div>

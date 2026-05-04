@@ -13,17 +13,19 @@ import { Table, TableBody, TableCell, TableHeader, TableRow } from '@/components
 import { TableSkeleton } from '@/components/ui/Skeleton';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { formatDate } from '@/utils';
+import { useTranslation } from 'react-i18next';
 import type { QuoteRequest } from '@/types';
 
 const statusConfig: Record<string, { variant: 'warning' | 'success' | 'danger' | 'default'; label: string }> = {
-  PENDING: { variant: 'warning', label: 'Pendiente' },
-  QUOTED: { variant: 'success', label: 'Cotizado' },
-  EXPIRED: { variant: 'danger', label: 'Expirado' },
-  CANCELLED: { variant: 'default', label: 'Cancelado' },
+  PENDING: { variant: 'warning', label: 'status.PENDING' },
+  QUOTED: { variant: 'success', label: 'status.QUOTED' },
+  EXPIRED: { variant: 'danger', label: 'status.EXPIRED' },
+  CANCELLED: { variant: 'default', label: 'status.CANCELLED' },
 };
 
 export function QuoteRequestsPage() {
   const { user } = useAuthStore();
+  const { t } = useTranslation();
   const [quotes, setQuotes] = useState<QuoteRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -62,12 +64,12 @@ export function QuoteRequestsPage() {
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Mis Cotizaciones"
-        description="Gestiona tus solicitudes de cotizacion."
+        title={t('quotes.myQuotes')}
+        description={t('quotes.description')}
         actions={
           <Link to="/quotes/new">
             <Button leftIcon={<Plus className="h-4 w-4" />}>
-              Nueva Solicitud
+              {t('quotes.newRequest')}
             </Button>
           </Link>
         }
@@ -76,7 +78,7 @@ export function QuoteRequestsPage() {
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex-1">
           <Input
-            placeholder="Buscar cotizaciones..."
+            placeholder={t('quotes.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             leftIcon={<Search className="h-4 w-4" />}
@@ -97,17 +99,17 @@ export function QuoteRequestsPage() {
         <Card>
           <CardBody>
             <EmptyState
-              title="No hay cotizaciones"
+              title={t('quotes.noQuotes')}
               description={
                 searchTerm
-                  ? 'No se encontraron resultados para tu busqueda.'
-                  : 'Aun no has creado ninguna solicitud de cotizacion.'
+                  ? t('quotes.noQuotesResult')
+                  : t('quotes.noQuotesDescription')
               }
               icon={<FileText className="h-16 w-16" />}
               action={
                 !searchTerm ? (
                   <Link to="/quotes/new">
-                    <Button leftIcon={<Plus className="h-4 w-4" />}>Crear Solicitud</Button>
+                    <Button leftIcon={<Plus className="h-4 w-4" />}>{t('quotes.createRequest')}</Button>
                   </Link>
                 ) : undefined
               }
@@ -120,13 +122,13 @@ export function QuoteRequestsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableCell as="th">ID</TableCell>
-                  <TableCell as="th">Titulo</TableCell>
-                  {isAdminOrRep && <TableCell as="th">Cliente</TableCell>}
-                  <TableCell as="th">Productos</TableCell>
-                  <TableCell as="th">Estado</TableCell>
-                  <TableCell as="th">Fecha</TableCell>
-                  <TableCell as="th" className="text-right">Acciones</TableCell>
+                  <TableCell as="th">{t('quotes.table.id')}</TableCell>
+                  <TableCell as="th">{t('quotes.table.title')}</TableCell>
+                  {isAdminOrRep && <TableCell as="th">{t('quotes.table.client')}</TableCell>}
+                  <TableCell as="th">{t('quotes.table.products')}</TableCell>
+                  <TableCell as="th">{t('quotes.table.status')}</TableCell>
+                  <TableCell as="th">{t('quotes.table.date')}</TableCell>
+                  <TableCell as="th" className="text-right">{t('quotes.table.actions')}</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -142,16 +144,16 @@ export function QuoteRequestsPage() {
                         <TableCell className="text-sm text-gray-600">{qr.clientName}</TableCell>
                       )}
                       <TableCell>
-                        <span className="text-sm text-gray-600">{qr.items.length} producto(s)</span>
+                        <span className="text-sm text-gray-600">{t('quotes.productCount', { count: qr.items.length })}</span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={status.variant}>{status.label}</Badge>
+                        <Badge variant={status.variant}>{t(status.label)}</Badge>
                       </TableCell>
                       <TableCell className="text-sm text-gray-500">{formatDate(qr.createdAt)}</TableCell>
                       <TableCell className="text-right">
                         <Link to={`/quotes/${qr.id}`}>
                           <Button variant="ghost" size="sm" leftIcon={<Eye className="h-4 w-4" />}>
-                            Ver
+                            {t('quotes.table.view')}
                           </Button>
                         </Link>
                       </TableCell>

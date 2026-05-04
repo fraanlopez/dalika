@@ -1,9 +1,11 @@
 import { Menu, Bell } from 'lucide-react';
 import { useUIStore } from '@/store/uiStore';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from 'react-i18next';
 
 export function TopBar() {
   const { toggleSidebar } = useUIStore();
+  const { t } = useTranslation();
 
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-gray-200">

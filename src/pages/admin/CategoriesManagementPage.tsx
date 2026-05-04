@@ -12,9 +12,11 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Modal } from '@/components/ui/Modal';
 import { useToast } from '@/components/ui/Toast';
 import { formatDate } from '@/utils';
+import { useTranslation } from 'react-i18next';
 import type { Category } from '@/types';
 
 export function CategoriesManagementPage() {
+  const { t } = useTranslation();
   const { addToast } = useToast();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +35,7 @@ export function CategoriesManagementPage() {
       const data = await categoriesService.getAll();
       setCategories(data.data);
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudieron cargar las categorias' });
+      addToast({ type: 'error', title: t('categories.errorLoading'), message: t('categories.errorLoading') });
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +62,7 @@ export function CategoriesManagementPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      addToast({ type: 'error', title: 'Error', message: 'El nombre es requerido' });
+      addToast({ type: 'error', title: t('categories.nameRequired'), message: t('categories.nameRequired') });
       return;
     }
 
@@ -71,49 +73,49 @@ export function CategoriesManagementPage() {
           name: formData.name.trim(),
           description: formData.description.trim(),
         });
-        addToast({ type: 'success', title: 'Categoria actualizada', message: `${formData.name} ha sido actualizada.` });
+        addToast({ type: 'success', title: t('categories.categoryUpdated'), message: `${formData.name} ${t('categories.categoryUpdated')}` });
       } else {
         await categoriesService.create({
           name: formData.name.trim(),
           description: formData.description.trim(),
         });
-        addToast({ type: 'success', title: 'Categoria creada', message: `${formData.name} ha sido creada.` });
+        addToast({ type: 'success', title: t('categories.categoryCreated'), message: `${formData.name} ${t('categories.categoryCreated')}` });
       }
       setShowModal(false);
       fetchCategories();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo guardar la categoria' });
+      addToast({ type: 'error', title: t('categories.errorSave'), message: t('categories.errorSave') });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (category: Category) => {
-    if (!confirm(`¿Estas seguro de que deseas eliminar "${category.name}"?`)) return;
+    if (!confirm(t('categories.confirmDelete', { name: category.name }))) return;
     try {
       await categoriesService.delete(category.id);
-      addToast({ type: 'success', title: 'Categoria eliminada', message: `${category.name} ha sido eliminada.` });
+      addToast({ type: 'success', title: t('categories.categoryDeleted'), message: `${category.name} ${t('categories.categoryDeleted')}` });
       fetchCategories();
     } catch {
-      addToast({ type: 'error', title: 'Error', message: 'No se pudo eliminar la categoria' });
+      addToast({ type: 'error', title: t('categories.errorDelete'), message: t('categories.errorDelete') });
     }
   };
 
   return (
     <div className="animate-fade-in">
       <PageHeader
-        title="Gestion de Categorias"
-        description="Administra las categorias del catalogo de marcas."
+        title={t('categories.manageTitle')}
+        description={t('categories.manageDescription')}
         actions={
           <Button onClick={openCreateModal} leftIcon={<Plus className="h-4 w-4" />}>
-            Nueva Categoria
+            {t('categories.newCategory')}
           </Button>
         }
       />
 
       <div className="mb-6">
         <Input
-          placeholder="Buscar categorias..."
+          placeholder={t('categories.searchPlaceholder')}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           leftIcon={<Search className="h-4 w-4" />}
@@ -126,12 +128,12 @@ export function CategoriesManagementPage() {
         <Card>
           <CardBody>
             <EmptyState
-              title="No hay categorias"
-              description="No se encontraron categorias registradas."
+              title={t('categories.noCategories')}
+              description={t('categories.noCategoriesDescription')}
               icon={<Tags className="h-16 w-16" />}
               action={
                 <Button onClick={openCreateModal} leftIcon={<Plus className="h-4 w-4" />}>
-                  Crear Categoria
+                  {t('categories.createCategory')}
                 </Button>
               }
             />
@@ -143,11 +145,11 @@ export function CategoriesManagementPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableCell as="th">Nombre</TableCell>
-                  <TableCell as="th">Descripcion</TableCell>
-                  <TableCell as="th">Marcas</TableCell>
-                  <TableCell as="th">Creada</TableCell>
-                  <TableCell as="th" className="text-right">Acciones</TableCell>
+                  <TableCell as="th">{t('categories.name')}</TableCell>
+                  <TableCell as="th">{t('categories.description')}</TableCell>
+                  <TableCell as="th">{t('categories.brands')}</TableCell>
+                  <TableCell as="th">{t('categories.created')}</TableCell>
+                  <TableCell as="th" className="text-right">{t('categories.actions')}</TableCell>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -187,32 +189,32 @@ export function CategoriesManagementPage() {
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={editingCategory ? 'Editar Categoria' : 'Nueva Categoria'}
-        description={editingCategory ? 'Modifica los datos de la categoria.' : 'Completa los datos para crear una nueva categoria.'}
+        title={editingCategory ? t('categories.editCategory') : t('categories.newCategory')}
+        description={editingCategory ? t('categories.editDescription') : t('categories.createDescription')}
         footer={
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setShowModal(false)}>
-              Cancelar
+              {t('categories.cancel')}
             </Button>
             <Button variant="primary" onClick={handleSubmit} isLoading={isSubmitting}>
-              {editingCategory ? 'Guardar Cambios' : 'Crear Categoria'}
+              {editingCategory ? t('categories.saveChanges') : t('categories.createCategory')}
             </Button>
           </div>
         }
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nombre de la categoria"
+            label={t('categories.name')}
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Electronica"
+            placeholder={t('categories.namePlaceholder')}
             required
           />
           <Textarea
-            label="Descripcion"
+            label={t('categories.description')}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            placeholder="Descripcion de la categoria..."
+            placeholder={t('categories.descPlaceholder')}
             rows={3}
           />
         </form>
